@@ -115,4 +115,4 @@ frontend/
 - Prompts are tuned for **B2** learners: natural French, no explicit correction during chat, optional end-of-session review.
 - Planned directions include Whisper for voice input, writing practice modes, and offline review storage — see local `next.txt` for ideas (not tracked in git).
 
-**Cursor agent transcript** (original build conversation): `a19fafdc-527b-462c-98ee-877c9b6a27e5`
+
