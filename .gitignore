@@ -1,0 +1,11 @@
+.env
+next.txt
+helpers.txt
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+frontend/node_modules/
+frontend/dist/
