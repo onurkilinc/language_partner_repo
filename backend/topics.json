@@ -1,0 +1,86 @@
+{
+  "speaking": [
+    {
+      "id": "speak-01",
+      "title": "Presentation personnelle",
+      "prompt": "Presentez-vous : parcours, situation actuelle, et un projet pour les prochaines annees."
+    },
+    {
+      "id": "speak-02",
+      "title": "Ville ideale",
+      "prompt": "Decrivez la ville ou vous aimeriez vivre et expliquez pourquoi ce choix vous convient."
+    },
+    {
+      "id": "speak-03",
+      "title": "Teletravail",
+      "prompt": "Le teletravail est-il une bonne solution pour les employes et les entreprises ? Donnez des arguments."
+    },
+    {
+      "id": "speak-04",
+      "title": "Voyage marquant",
+      "prompt": "Racontez un voyage ou une experience de voyage qui vous a marque et ce que vous en avez retenu."
+    },
+    {
+      "id": "speak-05",
+      "title": "Education numerique",
+      "prompt": "Pensez-vous que les technologies numeriques ameliorent l'education ? Illustrez avec des exemples."
+    },
+    {
+      "id": "speak-06",
+      "title": "Mode de vie sain",
+      "prompt": "Quelles habitudes adoptez-vous pour maintenir un mode de vie sain au quotidien ?"
+    },
+    {
+      "id": "speak-07",
+      "title": "Immigration et integration",
+      "prompt": "Discutez des defis et des opportunites lies a l'immigration dans un nouveau pays."
+    },
+    {
+      "id": "speak-08",
+      "title": "Culture et loisirs",
+      "prompt": "Quel role jouent la culture et les loisirs dans la qualite de vie d'une societe ?"
+    }
+  ],
+  "writing": [
+    {
+      "id": "write-01",
+      "title": "Lettre formelle",
+      "prompt": "Redigez une lettre formelle pour demander des informations sur un programme de formation professionnelle (150-200 mots)."
+    },
+    {
+      "id": "write-02",
+      "title": "Reseaux sociaux",
+      "prompt": "Les reseaux sociaux ont-ils plus d'effets positifs ou negatifs sur la societe ? Redigez un texte argumentatif (180-220 mots)."
+    },
+    {
+      "id": "write-03",
+      "title": "Environnement",
+      "prompt": "Proposez des actions concretes pour reduire la pollution dans les villes. Structurez votre texte clairement (180-220 mots)."
+    },
+    {
+      "id": "write-04",
+      "title": "Email professionnel",
+      "prompt": "Redigez un courriel professionnel pour reporter une reunion et proposer une nouvelle date (120-160 mots)."
+    },
+    {
+      "id": "write-05",
+      "title": "Egalite hommes-femmes",
+      "prompt": "L'egalite professionnelle entre hommes et femmes : quels progres et quels obstacles restants ? (200-250 mots)."
+    },
+    {
+      "id": "write-06",
+      "title": "Sante mentale",
+      "prompt": "Pourquoi est-il important de parler ouvertement de sante mentale au travail ? Appuyez-vous sur des exemples (180-220 mots)."
+    },
+    {
+      "id": "write-07",
+      "title": "Apprentissage des langues",
+      "prompt": "Quels sont les avantages d'apprendre une langue etrangere a l'age adulte ? (150-200 mots)."
+    },
+    {
+      "id": "write-08",
+      "title": "Consommation responsable",
+      "prompt": "Comment peut-on adopter une consommation plus responsable au quotidien ? (180-220 mots)."
+    }
+  ]
+}

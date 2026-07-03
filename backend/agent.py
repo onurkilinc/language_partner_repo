@@ -1,77 +1,43 @@
+import io
+import json
 import os
+import random
+from pathlib import Path
 
 from openai import OpenAI
 from dotenv import load_dotenv
 
+from prompts import MODES, get_review_prompt, get_system_prompt
+
 load_dotenv()
 
-SYSTEM_PROMPT = """
-
-You are a French conversation partner for a B2 learner.
-Core behavior:
-- Always reply in French.
-- Sound like a friendly real person, not a tutor or assistant.
-- Keep the conversation natural, warm, and specific to what the learner just said.
-- Do not explicitly correct mistakes or explain grammar.
-- If needed, reformulate naturally inside your own reply.
-- If the learner is asking a question, answer it.
-Conversation style:
-- Do not ask a question in every message.
-- If the learner answers a question, do not ask another question.
-- Vary your responses:
-  - sometimes react with a short personal-style comment,
-  - sometimes ask one follow-up question,
-  - sometimes share a brief related thought or example.
-- If the learner is sharing a story, ask follow-up questions to keep the conversation engaging.
-- Avoid generic AI-style prompts like “Quels sont tes objectifs ?” unless context truly fits.
-- Prefer concrete, everyday topics and natural transitions.
-Level (B2):
-- Assume the learner understands normal French.
-- Use mostly B2 vocabulary, occasionally one slightly advanced expression in context.
-- Keep language clear but not beginner-level.
-Length:
-- Aim for 1-4 short sentences (about 20-40 words total).
-- Never cut a sentence mid-way.
-
-"""
-
-REVIEW_PROMPT = """
-You are a French coach evaluating a B2 learner after a conversation.
-
-Task:
-- Analyze the learner's French in the conversation history.
-- Be honest, specific, and constructive.
-- Focus on recurring patterns, not one-off typos.
-
-Output in French with exactly these sections:
-
-1) Points forts
-- 2-4 bullets about what the learner did well.
-
-2) Erreurs frequentes
-- 3-6 bullets.
-- For each: show "Forme de l'apprenant -> Forme recommandee" + short explanation.
-
-3) Vocabulaire (niveau et variete)
-- Brief assessment of lexical range (B2 fit, repetition, precision).
-- 5 better alternatives the learner could reuse.
-
-4) Reformulations naturelles
-- Provide 3 full sentences the learner might have said better, based on their own ideas.
-
-5) Plan d'amelioration (prochaine session)
-- 3 concrete actions for next conversation practice.
-
-Constraints:
-- Keep total output concise (around 180-260 words).
-- Do not invent errors that are not supported by the conversation.
-"""
-
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_TOPICS_PATH = Path(__file__).parent / "topics.json"
 
 
-def generate_reply(history: list[dict[str, str]], user_message: str) -> tuple[str, dict[str, int]]:
-    messages: list[dict[str, str]] = [{"role": "system", "content": SYSTEM_PROMPT}]
+def load_topics() -> dict[str, list[dict[str, str]]]:
+    with _TOPICS_PATH.open(encoding="utf-8") as file:
+        return json.load(file)
+
+
+def pick_random_task(mode: str) -> dict[str, str] | None:
+    if mode == "speaking_exam":
+        topics = load_topics()["speaking"]
+    elif mode == "writing_exam":
+        topics = load_topics()["writing"]
+    else:
+        return None
+    return random.choice(topics)
+
+
+def generate_reply(
+    history: list[dict[str, str]],
+    user_message: str,
+    mode: str = "partner",
+    task: str | None = None,
+) -> tuple[str, dict[str, int]]:
+    system_prompt = get_system_prompt(mode, task)
+    messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
     messages.extend(history)
     messages.append({"role": "user", "content": user_message})
 
@@ -92,23 +58,40 @@ def generate_reply(history: list[dict[str, str]], user_message: str) -> tuple[st
     return (content or "").strip(), usage_data
 
 
-def generate_review(history: list[dict[str, str]]) -> str:
+def transcribe_audio(audio_bytes: bytes, filename: str = "audio.webm") -> str:
+    audio_file = io.BytesIO(audio_bytes)
+    audio_file.name = filename
+    transcript = client.audio.transcriptions.create(
+        model="whisper-1",
+        file=audio_file,
+        language="fr",
+    )
+    return (transcript.text or "").strip()
+
+
+def generate_review(
+    history: list[dict[str, str]],
+    mode: str = "partner",
+    task: str | None = None,
+) -> str:
+    system_prompt = get_review_prompt(mode)
+    user_content = "Voici l'historique de conversation. Fais l'evaluation demandee:\n\n"
+    if task and mode in ("speaking_exam", "writing_exam"):
+        user_content += f"Consigne de l'examen:\n{task}\n\n"
+    user_content += f"{history}"
+
     messages: list[dict[str, str]] = [
-        {"role": "system", "content": REVIEW_PROMPT},
-        {
-            "role": "user",
-            "content": (
-                "Voici l'historique de conversation. Fais l'evaluation demandee:\n\n"
-                f"{history}"
-            ),
-        },
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_content},
     ]
+
+    max_tokens = 700 if mode in ("speaking_exam", "writing_exam") else 500
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
         temperature=0.4,
-        max_tokens=500,
+        max_tokens=max_tokens,
     )
     content = response.choices[0].message.content
     return (content or "").strip()

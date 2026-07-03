@@ -1,20 +1,67 @@
 # French Language Partner
 
-A personal French practice app for exam preparation and everyday conversation. It uses a focused system prompt and session-based memory so practice feels more like talking to a partner than using a generic ChatGPT chat.
+A personal French practice app for exam preparation and everyday conversation. It uses focused prompts and session-based memory so practice feels more like a real partner or examiner than a generic ChatGPT chat.
 
 **Goals**
 
-- Prepare for French exams (e.g. TEF / TCF Canada-style speaking and writing practice)
-- Practice **oral** conversation with short, natural replies
-- Get a **session review** at the end (vocabulary, phrasing, areas to improve)
+- Prepare for French exams (TEF / TCF Canada-style **speaking** and **writing** practice)
+- Practice oral conversation with short, natural replies
+- Use **speech-to-text** (Whisper) to verify what was heard before sending
+- Get a **mode-specific review** at the end (casual feedback or exam rubric + corrections)
 - Keep costs under control with short responses, input limits, token-based session memory, and per-session cost estimates
 
 **Stack**
 
-- **Backend:** FastAPI, OpenAI API (`gpt-4o-mini`), in-memory session history (no database)
+- **Backend:** FastAPI, OpenAI API (`gpt-4o-mini` + `whisper-1`), in-memory session history (no database)
 - **Frontend:** React + Vite, runs on `localhost`
 
-Session data is temporary: backend memory clears when the server restarts; the browser uses `sessionStorage` for the session id.
+Session data is temporary: backend memory clears when the server restarts; the browser uses `sessionStorage` for the session id. Audio recordings are **not** stored — only transcribed in memory.
+
+---
+
+## Features
+
+### Modes
+
+| Mode | Purpose | During session | End review |
+|------|---------|----------------|------------|
+| **Partner** | Casual B2 conversation | Natural chat, no live correction | Encouraging session feedback |
+| **Speaking exam** | Oral exam practice (TEF/TCF style) | Examiner role + random task + **timer** | Rubric /5 + corrections + topics to rework |
+| **Writing exam** | Written expression practice | Coach reacts to your draft (longer input) | Rubric /5 + corrections + topics to rework |
+
+Tasks are loaded from `backend/topics.json` (8 speaking + 8 writing prompts).
+
+### Speaking exam timer
+
+- Choose **5 / 10 / 15 minutes** before starting
+- Warning at 1 minute left; input locks when time is up
+- Use **End exam review** after the session
+
+### Speech-to-text (Whisper)
+
+- Available in **Partner** and **Speaking exam** (not Writing)
+- Click **Mic** → speak → **Stop** → edit the transcript → **Send transcript**
+- Helps verify pronunciation indirectly (what the model heard vs what you meant)
+
+### Reviews
+
+- **No live correction** during chat in any mode
+- **Partner:** strengths, recurring errors, vocabulary, reformulations, next steps
+- **Exam modes:** scored rubric, important corrections (`learner form → recommended form`), task completion, study topics
+
+---
+
+## OpenAI usage
+
+One API key (`OPENAI_API_KEY`) powers everything:
+
+| Feature | Model | Notes |
+|---------|--------|--------|
+| Chat (all modes) | `gpt-4o-mini` | Token usage + estimated cost shown in UI |
+| Session review | `gpt-4o-mini` | Longer output for exam rubrics |
+| Speech-to-text | `whisper-1` | French (`language=fr`); billed per audio minute |
+
+Requires [billing enabled](https://platform.openai.com/settings/organization/billing) on your OpenAI account.
 
 ---
 
@@ -23,6 +70,7 @@ Session data is temporary: backend memory clears when the server restarts; the b
 - Python 3 (on Windows you can use `py` instead of `python`)
 - Node.js and npm
 - An [OpenAI API key](https://platform.openai.com/api-keys)
+- Microphone (for speech input; browser will ask permission on `localhost`)
 
 ---
 
@@ -93,26 +141,76 @@ Use `--reload` during development so the API restarts when you change backend co
 
 ---
 
+## How to use
+
+1. Pick a **mode** → **Start session**
+2. For speaking exam: set **duration**, read the task in the banner
+3. Chat by **typing** or **Mic** (partner / speaking only)
+4. Click **End session review** or **End exam review** when finished
+5. **New Chat** resets the session
+
+---
+
 ## Project layout
 
 ```
 backend/
-  main.py       # FastAPI routes (chat, review, reset)
-  agent.py      # OpenAI calls and prompts
-  memory.py     # In-memory session history
+  main.py         # FastAPI routes (chat, review, transcribe, session, topics)
+  agent.py        # OpenAI calls (chat, review, Whisper)
+  prompts.py      # System + review prompts per mode
+  topics.json     # Speaking / writing exam tasks
+  memory.py       # In-memory session history
   requirements.txt
 frontend/
-  src/App.jsx   # Chat UI
+  src/App.jsx     # Chat UI, timer, microphone, transcript panel
   ...
-.env.example    # Template for secrets (commit this)
-.env            # Your API key (local only, gitignored)
+.env.example      # Template for secrets (commit this)
+.env              # Your API key (local only, gitignored)
 ```
+
+### API endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/topics` | List speaking / writing tasks |
+| POST | `/session/start` | Start session; assigns random exam task |
+| POST | `/chat` | Send message (`mode`, optional `task_id`) |
+| POST | `/transcribe` | Upload audio → French transcript |
+| POST | `/review` | End-of-session review (mode-aware) |
+| POST | `/reset/{session_id}` | Clear session memory |
+
+---
+
+## Roadmap
+
+**Done**
+
+- [x] Three practice modes (partner, speaking exam, writing exam)
+- [x] Exam task bank (`topics.json`)
+- [x] Speaking exam countdown timer
+- [x] Whisper speech-to-text with editable transcript
+- [x] Mode-specific end review (partner vs exam rubric + corrections)
+
+**Planned**
+
+- [ ] Save exam reviews offline (local export / history)
+- [ ] More exam tasks and custom rubric templates (TEF/TCF sections)
+- [ ] Pronunciation feedback beyond transcription (accent scoring)
+- [ ] Deploy for phone use (e.g. HTTPS hosting)
+- [ ] Optional tiers / hosting (personal project)
+
+Ideas and notes may also live in local `next.txt` (gitignored).
 
 ---
 
 ## Notes
 
-- Prompts are tuned for **B2** learners: natural French, no explicit correction during chat, optional end-of-session review.
-- Planned directions include Whisper for voice input, writing practice modes, and offline review storage — see local `next.txt` for ideas (not tracked in git).
+- Prompts target **B2** learners.
+- Exam modes do not correct during the exercise — corrections appear only in the final review.
+- Whisper shows what was **transcribed**, not a pronunciation score.
 
+---
 
+## Cursor agent transcript
+
+Original build conversation: `a19fafdc-527b-462c-98ee-877c9b6a27e5`

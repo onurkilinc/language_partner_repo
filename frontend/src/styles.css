@@ -23,6 +23,74 @@ h1 {
   font-size: 24px;
 }
 
+.mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.mode-bar label {
+  font-weight: 600;
+}
+
+.mode-bar select {
+  padding: 8px 10px;
+  border: 1px solid #d7dbe8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.task-banner {
+  border: 1px solid #dbe4ff;
+  background: #f3f7ff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.task-banner p {
+  margin: 8px 0 0;
+  line-height: 1.45;
+}
+
+.timer-bar {
+  border: 1px solid #d7dbe8;
+  background: #f8f9fc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.timer-bar.timer-warning {
+  border-color: #f0c36d;
+  background: #fff8e8;
+  color: #8a5a00;
+}
+
+.timer-bar.timer-expired {
+  border-color: #e8a8a8;
+  background: #fff0f0;
+  color: #8b1e1e;
+}
+
+.review-panel {
+  margin-top: 12px;
+}
+
+.review-panel h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.chat-hint {
+  color: #666;
+  font-style: italic;
+  margin: 0;
+}
+
 .chat {
   border: 1px solid #ececf3;
   border-radius: 10px;
@@ -52,6 +120,52 @@ h1 {
 .composer {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mic-button {
+  background: #16a34a;
+  min-width: 64px;
+}
+
+.mic-button.recording {
+  background: #dc2626;
+}
+
+.transcript-panel {
+  border: 1px solid #dce3f5;
+  background: #f8fbff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.transcript-panel textarea {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid #d7dbe8;
+  border-radius: 8px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.transcript-status {
+  margin: 8px 0 0;
+  color: #555;
+  font-style: italic;
+}
+
+.transcript-error {
+  margin: 8px 0 0;
+  color: #8b1e1e;
+}
+
+.transcript-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
 }
 
 input {
