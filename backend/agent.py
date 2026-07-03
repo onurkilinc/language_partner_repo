@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from prompts import MODES, get_review_prompt, get_system_prompt
 
 load_dotenv()
+load_dotenv("../.env")
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 _TOPICS_PATH = Path(__file__).parent / "topics.json"

@@ -1,0 +1,13 @@
+frontend/
+node_modules/
+.git/
+.gitignore
+**/__pycache__/
+**/*.pyc
+.env
+frontend/.env
+helpers.txt
+next.txt
+*.md
+.agent/
+.cursor/

@@ -203,6 +203,72 @@ Ideas and notes may also live in local `next.txt` (gitignored).
 
 ---
 
+## Deployment (Railway + Amplify + Cognito)
+
+### Railway (backend)
+
+Docker is configured in two ways — pick **one**:
+
+**Option A — Repo root (recommended if Railway uses the whole GitHub repo)**
+
+- Uses root `Dockerfile` + `railway.toml`
+- Railway **Settings → Root Directory:** leave empty (repo root)
+- Builder: Dockerfile (auto from `railway.toml`)
+
+**Option B — Backend folder only**
+
+- Railway **Settings → Root Directory:** `backend`
+- Uses `backend/Dockerfile` + `backend/railway.toml`
+
+Test locally:
+
+```powershell
+docker build -t language-partner-api .
+docker run -p 8000:8000 --env-file .env language-partner-api
+```
+
+Health check: `http://localhost:8000/health`
+
+| Variable | Value |
+|----------|--------|
+| `OPENAI_API_KEY` | your key |
+| `COGNITO_REGION` | `ca-central-1` |
+| `COGNITO_USER_POOL_ID` | `ca-central-1_XkRApgQeE` |
+| `COGNITO_APP_CLIENT_ID` | `3666519505kfh0n896gh4j4l45` |
+| `COGNITO_USER_ATTRIBUTE` | `custom:user` |
+| `COGNITO_APPROVED_VALUE` | `approved` |
+| `ALLOWED_ORIGINS` | `https://staging.d3cgdms6cwr0k6.amplifyapp.com,http://localhost:5173` |
+
+Local dev without JWT: set `AUTH_DISABLED=true` or leave Cognito vars empty.
+
+### Amplify (frontend)
+
+Build with env vars (see `frontend/.env.example`):
+
+| Variable | Value |
+|----------|--------|
+| `VITE_API_URL` | your Railway public URL |
+| `VITE_COGNITO_REGION` | `ca-central-1` |
+| `VITE_COGNITO_USER_POOL_ID` | `ca-central-1_XkRApgQeE` |
+| `VITE_COGNITO_CLIENT_ID` | `3666519505kfh0n896gh4j4l45` |
+
+```powershell
+cd frontend
+npm install --legacy-peer-deps
+npm run build
+```
+
+Upload `frontend/dist` to Amplify (or connect GitHub for CI).
+
+### Cognito checklist
+
+- App client: **read** attribute `custom:user` (so it appears in the ID token)
+- Callback URL: `https://staging.d3cgdms6cwr0k6.amplifyapp.com`
+- Post-confirmation Lambda sets `custom:user` = `pending`
+- Pre-authentication Lambda blocks login until `custom:user` = `approved`
+
+---
+
 ## Notes
 
 - Prompts target **B2** learners.
@@ -211,6 +277,3 @@ Ideas and notes may also live in local `next.txt` (gitignored).
 
 ---
 
-## Cursor agent transcript
-
-Original build conversation: `a19fafdc-527b-462c-98ee-877c9b6a27e5`

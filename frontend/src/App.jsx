@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const API_BASE = "http://localhost:8000";
+import { apiFetch } from "./api";
 const MODES = [
   { id: "partner", label: "Partner" },
   { id: "speaking_exam", label: "Speaking exam" },
@@ -176,7 +176,7 @@ export default function App() {
       const formData = new FormData();
       formData.append("audio", blob, `recording.${extension}`);
 
-      const response = await fetch(`${API_BASE}/transcribe`, {
+      const response = await apiFetch("/transcribe", {
         method: "POST",
         body: formData,
       });
@@ -260,9 +260,8 @@ export default function App() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE}/chat`, {
+      const response = await apiFetch("/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           session_id: sessionId,
           message: text,
@@ -312,9 +311,8 @@ export default function App() {
   async function startSession() {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/session/start`, {
+      const response = await apiFetch("/session/start", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId, mode }),
       });
       if (!response.ok) {
@@ -374,7 +372,7 @@ export default function App() {
       setIsRecording(false);
     }
     stopMediaStream();
-    await fetch(`${API_BASE}/reset/${sessionId}`, { method: "POST" });
+    await apiFetch(`/reset/${sessionId}`, { method: "POST" });
     const nextSessionId = crypto.randomUUID();
     window.sessionStorage.setItem("language_partner_session_id", nextSessionId);
     setSessionId(nextSessionId);
@@ -394,9 +392,8 @@ export default function App() {
     if (messages.length === 0 || reviewLoading) return;
     setReviewLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/review`, {
+      const response = await apiFetch("/review", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionId }),
       });
       if (!response.ok) {

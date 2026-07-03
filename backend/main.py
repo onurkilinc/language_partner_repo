@@ -1,5 +1,7 @@
-from typing import Literal
+from typing import Annotated, Literal
 
+from dotenv import load_dotenv
+from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import File
 from fastapi import HTTPException
@@ -12,8 +14,13 @@ from agent import generate_review
 from agent import load_topics
 from agent import pick_random_task
 from agent import transcribe_audio
+from auth import get_current_user
+from config import auth_enabled, get_allowed_origins
 from memory import SessionMemory
 from prompts import MODES
+
+load_dotenv()
+load_dotenv("../.env")
 
 app = FastAPI()
 memory = SessionMemory(max_history_tokens=1200)
@@ -29,11 +36,13 @@ MAX_AUDIO_BYTES = 25 * 1024 * 1024
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+AuthenticatedUser = Annotated[dict, Depends(get_current_user)]
 
 Mode = Literal["partner", "speaking_exam", "writing_exam"]
 
@@ -118,13 +127,18 @@ def _set_session_meta(session_id: str, mode: str, task: dict[str, str] | None) -
     session_store[session_id] = meta
 
 
+@app.get("/health")
+def health() -> dict[str, str | bool]:
+    return {"status": "ok", "auth_enabled": auth_enabled()}
+
+
 @app.get("/topics")
-def get_topics() -> dict[str, list[dict[str, str]]]:
+def get_topics(_user: AuthenticatedUser) -> dict[str, list[dict[str, str]]]:
     return load_topics()
 
 
 @app.post("/session/start", response_model=StartSessionResponse)
-def start_session(request: StartSessionRequest) -> StartSessionResponse:
+def start_session(request: StartSessionRequest, _user: AuthenticatedUser) -> StartSessionResponse:
     if request.mode not in MODES:
         raise HTTPException(status_code=400, detail=f"Invalid mode. Use one of: {', '.join(MODES)}")
 
@@ -142,7 +156,7 @@ def start_session(request: StartSessionRequest) -> StartSessionResponse:
 
 
 @app.post("/transcribe", response_model=TranscribeResponse)
-async def transcribe(audio: UploadFile = File(...)) -> TranscribeResponse:
+async def transcribe(_user: AuthenticatedUser, audio: UploadFile = File(...)) -> TranscribeResponse:
     content_type = audio.content_type or ""
     if content_type and not (
         content_type.startswith("audio/")
@@ -169,7 +183,7 @@ async def transcribe(audio: UploadFile = File(...)) -> TranscribeResponse:
 
 
 @app.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest) -> ChatResponse:
+def chat(request: ChatRequest, _user: AuthenticatedUser) -> ChatResponse:
     if request.mode not in MODES:
         raise HTTPException(status_code=400, detail=f"Invalid mode. Use one of: {', '.join(MODES)}")
 
@@ -238,7 +252,7 @@ def chat(request: ChatRequest) -> ChatResponse:
 
 
 @app.post("/review", response_model=ReviewResponse)
-def review(request: ReviewRequest) -> ReviewResponse:
+def review(request: ReviewRequest, _user: AuthenticatedUser) -> ReviewResponse:
     history = memory.get(request.session_id)
     if not history:
         raise HTTPException(status_code=400, detail="No conversation to review yet.")
@@ -257,7 +271,7 @@ def review(request: ReviewRequest) -> ReviewResponse:
 
 
 @app.post("/reset/{session_id}")
-def reset_session(session_id: str) -> dict[str, bool]:
+def reset_session(session_id: str, _user: AuthenticatedUser) -> dict[str, bool]:
     memory.clear(session_id)
     if session_id in cost_store:
         del cost_store[session_id]

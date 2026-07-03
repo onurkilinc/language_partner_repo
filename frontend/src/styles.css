@@ -199,3 +199,60 @@ pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.auth-screen {
+  max-width: 420px;
+}
+
+.auth-subtitle {
+  color: #555;
+  margin-top: -8px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-tabs button {
+  background: #e8ecf8;
+  color: #222;
+}
+
+.auth-tabs button.active {
+  background: #2f6df6;
+  color: #fff;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-form button {
+  margin-top: 4px;
+}
+
+.auth-error {
+  color: #8b1e1e;
+}
+
+.auth-message {
+  color: #166534;
+}
+
+.auth-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.auth-bar button {
+  padding: 6px 12px;
+  font-size: 13px;
+}
