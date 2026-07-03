@@ -199,7 +199,7 @@ frontend/
 - [ ] Deploy for phone use (e.g. HTTPS hosting)
 - [ ] Optional tiers / hosting (personal project)
 
-Ideas and notes may also live in local `next.txt` (gitignored).
+
 
 ---
 
@@ -207,18 +207,10 @@ Ideas and notes may also live in local `next.txt` (gitignored).
 
 ### Railway (backend)
 
-Docker is configured in two ways — pick **one**:
-
-**Option A — Repo root (recommended if Railway uses the whole GitHub repo)**
 
 - Uses root `Dockerfile` + `railway.toml`
 - Railway **Settings → Root Directory:** leave empty (repo root)
 - Builder: Dockerfile (auto from `railway.toml`)
-
-**Option B — Backend folder only**
-
-- Railway **Settings → Root Directory:** `backend`
-- Uses `backend/Dockerfile` + `backend/railway.toml`
 
 Test locally:
 
@@ -233,11 +225,11 @@ Health check: `http://localhost:8000/health`
 |----------|--------|
 | `OPENAI_API_KEY` | your key |
 | `COGNITO_REGION` | `ca-central-1` |
-| `COGNITO_USER_POOL_ID` | `ca-central-1_XkRApgQeE` |
-| `COGNITO_APP_CLIENT_ID` | `3666519505kfh0n896gh4j4l45` |
-| `COGNITO_USER_ATTRIBUTE` | `custom:user` |
-| `COGNITO_APPROVED_VALUE` | `approved` |
-| `ALLOWED_ORIGINS` | `https://staging.d3cgdms6cwr0k6.amplifyapp.com,http://localhost:5173` |
+| `COGNITO_USER_POOL_ID` | `<>` |
+| `COGNITO_APP_CLIENT_ID` | `<>` |
+| `COGNITO_USER_ATTRIBUTE` | `<>` |
+| `COGNITO_APPROVED_VALUE` | `<>` |
+| `ALLOWED_ORIGINS` | `<>` |
 
 Local dev without JWT: set `AUTH_DISABLED=true` or leave Cognito vars empty.
 
@@ -249,8 +241,8 @@ Build with env vars (see `frontend/.env.example`):
 |----------|--------|
 | `VITE_API_URL` | your Railway public URL |
 | `VITE_COGNITO_REGION` | `ca-central-1` |
-| `VITE_COGNITO_USER_POOL_ID` | `ca-central-1_XkRApgQeE` |
-| `VITE_COGNITO_CLIENT_ID` | `3666519505kfh0n896gh4j4l45` |
+| `VITE_COGNITO_USER_POOL_ID` | `<>` |
+| `VITE_COGNITO_CLIENT_ID` | `<>` |
 
 ```powershell
 cd frontend
