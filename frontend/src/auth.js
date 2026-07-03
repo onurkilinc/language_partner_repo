@@ -8,7 +8,7 @@ import {
   signUp,
 } from "aws-amplify/auth";
 
-import { authEnabled, cognitoConfig } from "./config";
+import { authEnabled, cognitoConfig, isUserApproved } from "./config";
 
 let configured = false;
 
@@ -33,6 +33,16 @@ export async function getIdToken() {
   const session = await fetchAuthSession();
   return session.tokens?.idToken?.toString() ?? null;
 }
+
+export async function getUserApprovalStatus(forceRefresh = false) {
+  if (!authEnabled) return cognitoConfig.approvedValue;
+  const session = await fetchAuthSession({ forceRefresh });
+  const payload = session.tokens?.idToken?.payload;
+  const status = payload?.[cognitoConfig.userAttribute];
+  return typeof status === "string" ? status : "pending";
+}
+
+export { isUserApproved };
 
 export async function authGetCurrentUser() {
   if (!authEnabled) return null;

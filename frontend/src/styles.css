@@ -256,3 +256,23 @@ pre {
   padding: 6px 12px;
   font-size: 13px;
 }
+
+.pending-screen {
+  max-width: 520px;
+}
+
+.pending-email {
+  margin: 12px 0;
+}
+
+.pending-hint {
+  color: #555;
+  line-height: 1.5;
+}
+
+.pending-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
